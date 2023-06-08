@@ -49,7 +49,7 @@ class Agent:
             return torch.tensor(predefined_location)
         return torch.from_numpy(np.asarray((np.random.randint(self.height), np.random.randint(self.width)))).unsqueeze(0)
 
-    def update_need_after_step(self, moving_cost):
+    def update_need_after_step(self):
         for i in range(self.num_need):
             self.need[0, i] += self.lambda_need
 
@@ -82,7 +82,7 @@ class Agent:
         selected_action = environment.allactions[action_id].squeeze()  # to device
         self.location[0, :] += selected_action
         at_cost = environment.get_cost(action_id)
-        self.update_need_after_step(at_cost)
+        self.update_need_after_step()
 
         environment.update_agent_location_on_map(self)
         f, _ = environment.get_reward()

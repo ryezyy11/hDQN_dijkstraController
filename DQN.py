@@ -41,9 +41,9 @@ class hDQN(nn.Module):  # meta controller network
         self.conv2 = nn.Conv2d(in_channels=params.DQN_CONV1_OUT_CHANNEL,
                                out_channels=params.DQN_CONV1_OUT_CHANNEL,
                                kernel_size=3)
-        self.fc1 = nn.Linear(in_features=params.DQN_CONV1_OUT_CHANNEL+params.OBJECT_TYPE_NUM,  # +2 for needs
+        self.fc1 = nn.Linear(in_features=params.DQN_CONV1_OUT_CHANNEL,  # +2 for needs
                              out_features=32)
-        self.fc2 = nn.Linear(in_features=32, out_features=16)
+        self.fc2 = nn.Linear(in_features=32+params.OBJECT_TYPE_NUM, out_features=16)
         self.fc3 = nn.Linear(16, 8)
         self.fc4 = nn.Linear(8, 3)
 
@@ -55,8 +55,8 @@ class hDQN(nn.Module):  # meta controller network
         y = self.max_pool(y)
         y = F.relu(self.conv2(y))
         y = y.flatten(start_dim=1, end_dim=-1)
-        y = torch.concat([y, agent_need], dim=1)
         y = F.relu(self.fc1(y))
+        y = torch.concat([y, agent_need], dim=1)
         y = F.relu(self.fc2(y))
         y = F.relu(self.fc3(y))
         y = self.fc4(y)

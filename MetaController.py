@@ -67,14 +67,14 @@ class MetaController:
                 need = agent.need.to(self.device)
                 state = State_batch(env_map, need)
                 goal_type_values = self.policy_net(state).squeeze()
-                goal_type = goal_type_values.argmax().cpu().unsqueeze(dim=0)  # add dim for batch
+                goal_type = goal_type_values.argmax().unsqueeze(dim=0)  # add dim for batch
 
         # stay
         if goal_type[0] == self.object_type_num:
             goal_map = environment.env_map[:, 0, :, :].clone()  # agent map as goal map
         # goal
         else:
-            goal_map = environment.env_map[:, goal_type[0]+1, :, :]  # because 0 is agent map
+            goal_map = environment.env_map[:, goal_type.item()+1, :, :]  # because 0 is agent map
 
         self.steps_done += 1
         return goal_map, goal_type
