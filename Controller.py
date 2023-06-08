@@ -87,7 +87,7 @@ class Controller:
 
             heapq.heapify(min_heap)
 
-        targets = target.numpy()
+        targets = target.cpu().numpy()
         distance_to_targets = np.array([graph[at[0], at[1]].distance for at in targets])
         at = targets[np.argmin(distance_to_targets)]
         actions = []
@@ -99,6 +99,6 @@ class Controller:
     def get_action(self, agent_goal_map):
         actions = self.get_shortest_path_to_object(agent_goal_map)
         if len(actions) > 0:
-            return torch.tensor([self.action_id_dict[str(actions[0])]])
+            return torch.tensor([self.action_id_dict[str(actions[0])]]).to(self.device)
         else:
-            return torch.tensor([0])  # staying
+            return torch.tensor([0]).to(self.device)  # staying
