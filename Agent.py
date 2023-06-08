@@ -80,7 +80,7 @@ class Agent:
 
     def take_action(self, environment, action_id):
         selected_action = environment.allactions[action_id].squeeze()  # to device
-        self.location[0] += selected_action
+        self.location[0, :] += selected_action
         at_cost = environment.get_cost(action_id)
         self.update_need_after_step(at_cost)
 

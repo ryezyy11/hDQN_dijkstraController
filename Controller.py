@@ -35,6 +35,7 @@ class Controller:
         self.all_actions = np.array([[0, 0],
                                      [1, 0], [-1, 0], [0, 1], [0, -1],
                                      [1, 1], [-1, -1], [-1, 1], [1, -1]])
+
         self.action_id_dict = {str(self.all_actions[i]): i for i in range(self.all_actions.shape[0])}
 
     def get_node_neighbours(self, x, y, graph):
@@ -42,10 +43,8 @@ class Controller:
         if x - 1 >= 0:
             neighbours.append([x - 1, y])
             if y - 1 >= 0:
-                neighbours.append([x, y - 1])
                 neighbours.append([x - 1, y - 1])
             if y + 1 < self.width:
-                neighbours.append([x, y + 1])
                 neighbours.append([x - 1, y + 1])
         if x + 1 < self.height:
             neighbours.append([x + 1, y])
@@ -53,6 +52,11 @@ class Controller:
                 neighbours.append([x + 1, y - 1])
             if y + 1 < self.width:
                 neighbours.append([x + 1, y + 1])
+        if y - 1 >= 0:
+            neighbours.append([x, y - 1])
+        if y + 1 < self.width:
+            neighbours.append([x, y + 1])
+
         return neighbours
 
     def get_shortest_path_to_object(self, agent_goal_map):
