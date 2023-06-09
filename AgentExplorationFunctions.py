@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def agent_reached_goal(agent, environment, goal_index):
-    target_goal_layer = 0 if goal_index == environment.object_type_num else goal_index.cpu().item() + 1
+    target_goal_layer = 0 if goal_index == environment.object_type_num else goal_index.clone().cpu().item() + 1
     same_elements_on_grid_num = torch.logical_and(environment.env_map[0, 0, :, :],
                                                   environment.env_map[0, target_goal_layer, :, :]).sum()
     if same_elements_on_grid_num > 0:
