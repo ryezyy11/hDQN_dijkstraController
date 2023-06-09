@@ -67,7 +67,7 @@ class MetaController:
                 need = agent.need.to(self.device)
                 state = State_batch(env_map, need)
                 goal_type_values = self.policy_net(state).squeeze()
-                goal_type = goal_type_values.argmax().unsqueeze(dim=0)  # add dim for batch
+                goal_type = goal_type_values.argmax().cpu().unsqueeze(dim=0)  # add dim for batch
 
         # stay
         if goal_type[0] == self.object_type_num:
