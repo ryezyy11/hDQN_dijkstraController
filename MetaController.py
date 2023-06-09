@@ -20,6 +20,14 @@ class MetaControllerMemory(ReplayMemory):
                                  'final_need'))
         return Transition(*args)
 
+    def update_top_n_experiences(self, n, episode_rewards):
+        temp_experiences = []
+        for i in range(n):
+            top = self.memory.pop()
+            top.reward = episode_rewards[:i].sum()
+            temp_experiences.append(top)
+        for experience in temp_experiences.__reversed__():
+            self.push_experience(experience)
 
 class MetaController:
 

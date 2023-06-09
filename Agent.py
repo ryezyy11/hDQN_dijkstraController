@@ -82,15 +82,18 @@ class Agent:
         selected_action = environment.allactions[action_id].squeeze()  # to device
         self.location[0, :] += selected_action
         at_cost = environment.get_cost(action_id)
+        last_total_need = self.get_total_need()
+        # temp_need = self.need.clone()
         self.update_need_after_step()
 
         environment.update_agent_location_on_map(self)
         f, _ = environment.get_reward()
         self.update_need_after_reward(f)
         at_total_need = self.get_total_need()
-        last_total_need = self.total_need
+        # last_total_need = self.total_need
         # rho = last_total_need - at_total_need - at_cost
-        rho = (-1) * at_total_need - at_cost
+        # rho = (-1) * at_total_need - at_cost
+        rho = (-1) * at_total_need - at_cost + self.relu(last_total_need - at_total_need)
         goal_reaching_reward = torch.sub(f, at_cost).squeeze()
         self.total_need = deepcopy(at_total_need)
         return rho.unsqueeze(0), goal_reaching_reward
