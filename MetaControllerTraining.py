@@ -29,7 +29,7 @@ def training_meta_controller():
     pre_located_objects = [[]] * params.OBJECT_TYPE_NUM
     pre_located_agent = [[]]
     for episode in range(params.META_CONTROLLER_EPISODE_NUM):
-        episode_meta_controller_reward = 0
+        episode_meta_controller_reward = torch.tensor([0])
         episode_meta_controller_loss = 0
         steps_reward = []
         action = 0
@@ -38,16 +38,16 @@ def training_meta_controller():
         pre_located_objects = [[]] * params.OBJECT_TYPE_NUM
         pre_located_agent = [[]]
         done = torch.tensor([0])
-        while True:
-            env_map_0 = environment.env_map.clone()
-            need_0 = agent.need.clone()
-            goal_map, goal_type = meta_controller.get_goal_map(environment, agent, episode)  # goal type is either 0 or 1
 
-            agent_goal_map_0 = torch.stack([env_map_0[:, 0, :, :], goal_map], dim=1)
-            action_id = controller.get_action(agent_goal_map_0).clone()
+        env_map_0 = environment.env_map.clone()
+        need_0 = agent.need.clone()
+        goal_map, goal_type = meta_controller.get_goal_map(environment, agent, episode)  # goal type is either 0 or 1
+        while action < params.EPISODE_LEN:
+            agent_goal_map = torch.stack([environment.env_map[:, 0, :, :], goal_map], dim=1)
+            action_id = controller.get_action(agent_goal_map).clone()
             rho, _ = agent.take_action(environment, action_id)
-            steps_reward.append(rho)
-            episode_meta_controller_reward += rho
+            # steps_reward.append(rho)
+            episode_meta_controller_reward = torch.add(rho, episode_meta_controller_reward)
 
             goal_reached = agent_reached_goal(agent, environment, goal_type)
 
@@ -55,17 +55,26 @@ def training_meta_controller():
             action += 1
             global_index += 1
 
-            meta_controller.save_experience(env_map_0, need_0, goal_type,
-                                            rho, done,
-                                            environment.env_map.clone(),
-                                            agent.need.clone())
+            if goal_reached:  # No goal reached
+                # meta_controller.memory.update_top_n_experiences(action, torch.tensor(steps_reward))
+                meta_controller.save_experience(env_map_0, need_0,
+                                                goal_type,
+                                                episode_meta_controller_reward,
+                                                done,
+                                                environment.env_map.clone(), agent.need.clone())
+                at_loss = meta_controller.optimize()
 
-            at_loss = meta_controller.optimize()
+                episode_meta_controller_loss += get_meta_controller_loss(at_loss)
+                episode_meta_controller_reward = torch.tensor([0])
 
-            episode_meta_controller_loss += get_meta_controller_loss(at_loss)
-            if goal_reached or action == params.EPISODE_LEN:  # or rho >= 0:
-                meta_controller.memory.update_top_n_experiences(action, torch.tensor(steps_reward))
-                break
+                env_map_0 = environment.env_map.clone()
+                need_0 = agent.need.clone()
+                goal_map, goal_type = meta_controller.get_goal_map(environment,
+                                                                   agent,
+                                                                   episode)  # goal type is either 0 or 1
+
+            # if action == params.EPISODE_LEN:
+            #     break
 
         meta_controller_reward_sum += episode_meta_controller_reward.item()
         meta_controller_loss_list.append((episode_meta_controller_loss / action))
