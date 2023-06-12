@@ -64,7 +64,7 @@ def training_meta_controller():
 
             episode_meta_controller_loss += get_meta_controller_loss(at_loss)
             if goal_reached or action == params.EPISODE_LEN:  # or rho >= 0:
-                # meta_controller.memory.update_top_n_experiences(action, torch.tensor(steps_reward))
+                meta_controller.memory.update_top_n_experiences(action, torch.tensor(steps_reward))
                 break
 
         meta_controller_reward_sum += episode_meta_controller_reward.item()

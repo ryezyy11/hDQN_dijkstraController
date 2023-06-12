@@ -4,7 +4,7 @@ import torch
 from State_batch import State_batch
 from DQN import hDQN, weights_init_orthogonal
 from ReplayMemory import ReplayMemory
-from collections import namedtuple
+from collections import namedtuple, deque
 from torch import nn
 import numpy as np
 import math
@@ -22,12 +22,16 @@ class MetaControllerMemory(ReplayMemory):
 
     def update_top_n_experiences(self, n, episode_rewards):
         temp_experiences = []
-        for i in range(n):
+        top_rewards = deque([], maxlen=n)
+        for i in range(n-1, -1, -1):
             top = self.memory.pop()
-            top.reward = episode_rewards[:i].sum()
+            top_rewards.append(episode_rewards[i:].sum().unsqueeze(dim=0))
             temp_experiences.append(top)
-        for experience in temp_experiences.__reversed__():
-            self.push_experience(experience)
+
+        for exp in temp_experiences.__reversed__():
+            self.push_experience(exp.initial_map, exp.initial_need, exp.goal_index, top_rewards.pop(),
+                                 exp.done, exp.final_map, exp.final_need)
+
 
 class MetaController:
 
