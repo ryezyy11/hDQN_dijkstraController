@@ -42,10 +42,12 @@ def training_meta_controller():
         env_map_0 = environment.env_map.clone()
         need_0 = agent.need.clone()
         goal_map, goal_type = meta_controller.get_goal_map(environment, agent, episode)  # goal type is either 0 or 1
+        first_action = True
         while action < params.EPISODE_LEN:
             agent_goal_map = torch.stack([environment.env_map[:, 0, :, :], goal_map], dim=1)
             action_id = controller.get_action(agent_goal_map).clone()
             rho, _ = agent.take_action(environment, action_id)
+            print(rho)
             # steps_reward.append(rho)
             episode_meta_controller_reward = torch.add(rho, episode_meta_controller_reward)
 
@@ -61,7 +63,9 @@ def training_meta_controller():
                                                 goal_type,
                                                 episode_meta_controller_reward,
                                                 done,
-                                                environment.env_map.clone(), agent.need.clone())
+                                                environment.env_map.clone(), agent.need.clone(),
+                                                first_action=first_action)
+                first_action = False
                 at_loss = meta_controller.optimize()
 
                 episode_meta_controller_loss += get_meta_controller_loss(at_loss)

@@ -35,14 +35,14 @@ class MetaControllerMemory(ReplayMemory):
 
 class MetaController:
 
-    def __init__(self, batch_size, num_objects, gamma, episode_num, episode_len, memory_capacity, rewarded_action_selection_ratio):
+    def __init__(self, batch_size, num_objects, gamma, episode_num, episode_len, memory_capacity, episode_first_action_memory_weight):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.policy_net = hDQN().to(self.device)
         self.policy_net.apply(weights_init_orthogonal)
         self.target_net = hDQN().to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.memory = MetaControllerMemory(memory_capacity)
-        self.rewarded_action_selection_ratio = rewarded_action_selection_ratio
+        self.episode_first_action_memory_weight = episode_first_action_memory_weight
         self.object_type_num = num_objects
         self.steps_done = 0
         self.EPS_START = 0.95
@@ -91,13 +91,17 @@ class MetaController:
         self.steps_done += 1
         return goal_map, goal_type
 
-    def save_experience(self, initial_map, initial_need, goal_index, acquired_reward, done, final_map, final_need):
+    def save_experience(self, initial_map, initial_need, goal_index, acquired_reward, done, final_map, final_need, first_action=False):
         self.memory.push_experience(initial_map, initial_need, goal_index, acquired_reward, done, final_map, final_need)
-        relu = nn.ReLU()
-        sigmoid = nn.Sigmoid()
+        # relu = nn.ReLU()
+        # sigmoid = nn.Sigmoid()
         # memory_prob = relu(acquired_reward) + 1  # This should be changed to sigmoid
         # memory_prob = .5 if acquired_reward == 0 else 1/abs(acquired_reward)
-        memory_prob = 1
+        # memory_prob = 1
+        if first_action:
+            memory_prob = self.episode_first_action_memory_weight
+        else:
+            memory_prob = 1
         self.memory.push_selection_ratio(selection_ratio=memory_prob)
 
     def update_target_net(self):

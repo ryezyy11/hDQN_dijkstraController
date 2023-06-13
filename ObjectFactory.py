@@ -50,7 +50,7 @@ class ObjectFactory:
                                          self.params.META_CONTROLLER_EPISODE_NUM,
                                          self.params.EPISODE_LEN,
                                          self.params.META_CONTROLLER_MEMORY_CAPACITY,
-                                         self.params.REWARDED_ACTION_SAMPLING_PROBABILITY_RATIO)
+                                         self.params.EPISODE_FIRST_ACTION_MEMORY_WEIGHT)
         self.meta_controller = deepcopy(meta_controller)
         return meta_controller
 
