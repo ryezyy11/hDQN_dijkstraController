@@ -20,16 +20,16 @@ class MetaControllerMemory(ReplayMemory):
                                  'final_need'))
         return Transition(*args)
 
-    def update_top_n_experiences(self, n, episode_rewards):
+    def update_top_n_experiences(self, n, episode_satisfactions):
         temp_experiences = []
         top_rewards = deque([], maxlen=n)
         for i in range(n-1, -1, -1):
             top = self.memory.pop()
-            top_rewards.append(episode_rewards[i:].sum().unsqueeze(dim=0))
+            top_rewards.append(episode_satisfactions[i:].sum().unsqueeze(dim=0))
             temp_experiences.append(top)
 
         for exp in temp_experiences.__reversed__():
-            self.push_experience(exp.initial_map, exp.initial_need, exp.goal_index, top_rewards.pop(),
+            self.push_experience(exp.initial_map, exp.initial_need, exp.goal_index, top_rewards.pop() + exp.reward,
                                  exp.done, exp.final_map, exp.final_need)
 
 

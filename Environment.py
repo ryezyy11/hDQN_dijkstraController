@@ -142,5 +142,5 @@ class Environment:
 
     def get_cost(self, action_id):
         if action_id == 0:
-            return self.cost_of_staying
+            return torch.tensor(self.cost_of_staying).float()
         return torch.linalg.norm(self.allactions[action_id].squeeze().float())

@@ -93,7 +93,8 @@ class Agent:
         # last_total_need = self.total_need
         # rho = last_total_need - at_total_need - at_cost
         # rho = (-1) * at_total_need - at_cost
-        rho = (-1) * at_total_need - at_cost + self.relu(last_total_need - at_total_need)
-        goal_reaching_reward = torch.sub(f, at_cost).squeeze()
+        satisfaction = self.relu(last_total_need - at_total_need)
+        rho = (-1) * at_total_need - at_cost #+ self.relu(last_total_need - at_total_need)
+        # goal_reaching_reward = torch.sub(f, at_cost).squeeze()
         self.total_need = deepcopy(at_total_need)
-        return rho.unsqueeze(0), goal_reaching_reward
+        return rho.unsqueeze(0), satisfaction
