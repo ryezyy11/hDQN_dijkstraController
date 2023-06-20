@@ -32,7 +32,7 @@ def training_meta_controller():
     for episode in range(params.META_CONTROLLER_EPISODE_NUM):
         episode_meta_controller_reward = 0
         episode_meta_controller_loss = 0
-        steps_satisfactions = []
+        steps_rho = []
         action = 0
         agent = factory.get_agent(pre_located_agent)
         environment = factory.get_environment(['few', 'few'], environment_initialization_prob_map, pre_located_objects)
@@ -47,7 +47,7 @@ def training_meta_controller():
             agent_goal_map_0 = torch.stack([env_map_0[:, 0, :, :], goal_map], dim=1)
             action_id = controller.get_action(agent_goal_map_0).clone()
             rho, satisfaction = agent.take_action(environment, action_id)
-            steps_satisfactions.append(satisfaction)
+            steps_rho.append(rho)
             episode_meta_controller_reward += rho
 
             goal_reached = agent_reached_goal(agent, environment, goal_type)
@@ -66,7 +66,7 @@ def training_meta_controller():
 
             if goal_reached or action == params.EPISODE_LEN:  # or rho >= 0:
                 if goal_type.item() != params.OBJECT_TYPE_NUM:
-                    meta_controller.memory.update_top_n_experiences(action, torch.tensor(steps_satisfactions))
+                    meta_controller.memory.update_top_n_experiences(action, torch.tensor(steps_rho))
                 break
 
         # meta_controller_reward_sum += episode_meta_controller_reward.item()

@@ -23,6 +23,7 @@ class Agent:
         self.EPS_START = 0.9
         self.EPS_END = 0.05
         self.lambda_need = 1  # How much the need increases after each action
+        self.lambda_satisfaction = 3
         self.relu = ReLU()
         total_need_functions = {'ReLU': self.relu, 'PolyReLU': self.poly_relu}
         self.rho_function = total_need_functions[rho_function]
@@ -94,7 +95,7 @@ class Agent:
         # rho = last_total_need - at_total_need - at_cost
         # rho = (-1) * at_total_need - at_cost
         satisfaction = self.relu(last_total_need - at_total_need)
-        rho = (-1) * at_total_need - at_cost #+ self.relu(last_total_need - at_total_need)
+        rho = (-1) * at_total_need - at_cost + satisfaction * self.lambda_satisfaction
         # goal_reaching_reward = torch.sub(f, at_cost).squeeze()
         self.total_need = deepcopy(at_total_need)
         return rho.unsqueeze(0), satisfaction
