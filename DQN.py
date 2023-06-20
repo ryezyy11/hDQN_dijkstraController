@@ -41,9 +41,10 @@ class hDQN(nn.Module):  # meta controller network
         self.conv2 = nn.Conv2d(in_channels=params.DQN_CONV1_OUT_CHANNEL,
                                out_channels=params.DQN_CONV1_OUT_CHANNEL,
                                kernel_size=3)
-        self.fc1 = nn.Linear(in_features=params.DQN_CONV1_OUT_CHANNEL,  # +2 for needs
+        self.fc1 = nn.Linear(in_features=params.DQN_CONV1_OUT_CHANNEL,
                              out_features=32)
-        self.fc2 = nn.Linear(in_features=32+params.OBJECT_TYPE_NUM, out_features=16)
+        self.fc2 = nn.Linear(in_features=32 + params.OBJECT_TYPE_NUM,
+                             out_features=16)  # +2 for needs
         self.fc3 = nn.Linear(16, 8)
         self.fc4 = nn.Linear(8, 3)
 
