@@ -51,23 +51,22 @@ def training_meta_controller():
             need_0 = agent.need.clone()
             goal_map, goal_type = meta_controller.get_goal_map(environment,
                                                                agent,
-                                                               episode * params.EPISODE_LEN + goal_selecting_step)  # goal type is either 0 or 1
+                                                               episode)  # goal type is either 0 or 1
             done = torch.tensor([0])
             while True:
                 agent_goal_map_0 = torch.stack([environment.env_map[:, 0, :, :], goal_map], dim=1)
                 action_id = controller.get_action(agent_goal_map_0).clone()
                 rho, satisfaction = agent.take_action(environment, action_id)
                 steps_rho.append(rho)
-                episode_meta_controller_reward += rho
+
                 goal_reached = agent_reached_goal(agent, environment, goal_type)
-                at_loss = meta_controller.optimize()
+
                 all_actions += 1
                 steps += 1
-                episode_meta_controller_loss += get_meta_controller_loss(at_loss)
 
                 if goal_reached or steps == params.EPISODE_STEPS:  # or rho >= 0:
                     meta_controller.save_experience(env_map_0, need_0, goal_type,
-                                                    rho, done,
+                                                    sum(steps_rho), done,
                                                     environment.env_map.clone(),
                                                     agent.need.clone())
                     pre_located_objects_location = update_pre_located_objects(environment.object_locations,
@@ -80,6 +79,10 @@ def training_meta_controller():
                     # if goal_type.item() != params.OBJECT_TYPE_NUM:
                     #     meta_controller.memory.update_top_n_experiences(all_actions, torch.tensor(steps_rho))
                     break
+
+            episode_meta_controller_reward += sum(rho)
+            at_loss = meta_controller.optimize()
+            episode_meta_controller_loss += get_meta_controller_loss(at_loss)
 
         writer.add_scalar("Meta Controller/Loss", episode_meta_controller_loss / all_actions, episode)
         writer.add_scalar("Meta Controller/Reward", episode_meta_controller_reward / all_actions, episode)
