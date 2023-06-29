@@ -7,7 +7,7 @@ from itertools import product
 
 
 class Agent:
-    def __init__(self, h, w, n, prob_init_needs_equal, predefined_location,
+    def __init__(self, h, w, n, prob_init_needs_equal, predefined_location, preassigned_needs,
                  rho_function='ReLU',epsilon_function='Linear'):  # n: number of needs
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.height = h
@@ -16,7 +16,7 @@ class Agent:
         self.num_need = n
         self.range_of_need = [-12, 12]
         self.prob_init_needs_equal = prob_init_needs_equal
-        self.need = self.set_need()
+        self.need = self.set_need(preassigned_needs)
         self.steps_done = 0
         # self.episode_num = episode_num
         # self.episode_len = episode_len
@@ -35,14 +35,17 @@ class Agent:
     def poly_relu(self, x, p=2):
         return self.relu(x) ** p
 
-    def set_need(self):
-        p = random.uniform(0, 1)
-        if p <= self.prob_init_needs_equal:
-            need = torch.rand((1, self.num_need))
-            need[0, 1:] = need[0, 0]
+    def set_need(self, preassigned_needs=None):
+        if any(preassigned_needs):
+            need = torch.tensor(preassigned_needs)
         else:
-            need = torch.rand((1, self.num_need))
-        need = (self.range_of_need[1] - self.range_of_need[0]) * need + self.range_of_need[0]
+            p = random.uniform(0, 1)
+            if p <= self.prob_init_needs_equal:
+                need = torch.rand((1, self.num_need))
+                need[0, 1:] = need[0, 0]
+            else:
+                need = torch.rand((1, self.num_need))
+            need = (self.range_of_need[1] - self.range_of_need[0]) * need + self.range_of_need[0]
         return need
 
     def initial_location(self, predefined_location): # predefined_location is a list

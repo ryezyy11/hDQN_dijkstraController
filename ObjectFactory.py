@@ -14,15 +14,16 @@ class ObjectFactory:
         self.meta_controller = None
         self.params = utility.params
 
-    def get_agent(self, pre_location):
+    def get_agent(self, pre_location, preassigned_needs):
         agent = Agent(self.params.HEIGHT, self.params.WIDTH, n=self.params.OBJECT_TYPE_NUM,
                       prob_init_needs_equal=self.params.PROB_OF_INIT_NEEDS_EQUAL, predefined_location=pre_location,
                       rho_function=self.params.RHO_FUNCTION,
-                      epsilon_function=self.params.EPSILON_FUNCTION)
+                      epsilon_function=self.params.EPSILON_FUNCTION,
+                      preassigned_needs=preassigned_needs)
         self.agent = deepcopy(agent)
         return agent
 
-    def get_environment(self, few_many, probability_map, pre_located_objects):  # pre_located_objects is a 2D list
+    def get_environment(self, few_many, probability_map, pre_located_objects_num, pre_located_objects_location):  # pre_located_objects is a 2D list
         curr_frame = inspect.currentframe()
         call_frame = inspect.getouterframes(curr_frame, 2)
         if 'meta_controller' in call_frame[1][3]:
@@ -32,7 +33,9 @@ class ObjectFactory:
         env = Environment(few_many, self.params.HEIGHT, self.params.WIDTH, self.agent, probability_map,
                           reward_of_object=self.params.REWARD_OF_OBJECT,
                           far_objects_prob=self.params.PROB_OF_FAR_OBJECTS_FOR_TWO,
-                          num_object=num_objects, pre_located_objects=pre_located_objects)
+                          num_object=num_objects,
+                          pre_located_objects_num=pre_located_objects_num,
+                          pre_located_objects_location=pre_located_objects_location)
         self.environment = deepcopy(env)
         return env
 
