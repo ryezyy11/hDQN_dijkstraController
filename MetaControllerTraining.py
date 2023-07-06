@@ -80,7 +80,7 @@ def training_meta_controller():
                     #     meta_controller.memory.update_top_n_experiences(all_actions, torch.tensor(steps_rho))
                     break
 
-            episode_meta_controller_reward += sum(rho)
+            episode_meta_controller_reward += sum(steps_rho)
             at_loss = meta_controller.optimize()
             episode_meta_controller_loss += get_meta_controller_loss(at_loss)
 
