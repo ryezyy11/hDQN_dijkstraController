@@ -72,9 +72,8 @@ class Agent:
         self.location[0, :] += selected_action
         at_cost = environment.get_cost(action_id)
         last_total_need = self.get_total_need()
-        # temp_need = self.need.clone()
-        self.update_need_after_step()
 
+        self.update_need_after_step()
         environment.update_agent_location_on_map(self)
         f, _ = environment.get_reward()
         self.update_need_after_reward(f)
