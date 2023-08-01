@@ -90,7 +90,7 @@ def training_meta_controller():
 
         if (episode + 1) % params.PRINT_OUTPUT == 0:
             pre_located_objects_location = [[[]]] * params.OBJECT_TYPE_NUM
-            pre_located_objects_num = [] * params.OBJECT_TYPE_NUM
+            pre_located_objects_num = torch.zeros((params.OBJECT_TYPE_NUM, ), dtype=torch.int32)
             test_environment = factory.get_environment(episode_object_amount,
                                                        environment_initialization_prob_map,
                                                        pre_located_objects_num,
