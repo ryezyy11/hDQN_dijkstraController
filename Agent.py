@@ -21,7 +21,7 @@ class Agent:
         self.EPS_START = 0.9
         self.EPS_END = 0.05
         self.lambda_need = 1  # How much the need increases after each action
-        self.lambda_satisfaction = 3
+        self.lambda_satisfaction = 1
         self.relu = ReLU()
         total_need_functions = {'ReLU': self.relu, 'PolyReLU': self.poly_relu}
         self.rho_function = total_need_functions[rho_function]
@@ -80,6 +80,6 @@ class Agent:
         self.update_need_after_reward(f)
         at_total_need = self.get_total_need()
         satisfaction = self.relu(last_total_need - at_total_need)
-        rho = (-1) * at_total_need - at_cost + satisfaction # * self.lambda_satisfaction
+        rho = (-1) * at_total_need - at_cost + satisfaction * self.lambda_satisfaction
         self.total_need = deepcopy(at_total_need)
         return rho.unsqueeze(0), satisfaction
