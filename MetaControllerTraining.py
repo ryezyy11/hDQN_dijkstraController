@@ -38,7 +38,7 @@ def training_meta_controller():
         pre_located_objects_num = torch.zeros((params.OBJECT_TYPE_NUM, ), dtype=torch.int32)
         pre_located_agent = [[]]
         pre_assigned_needs = [[]]
-        object_amount_options = ['few', 'few'] #['few', 'many']
+        object_amount_options = ['few', 'many']
         episode_object_amount = [np.random.choice(object_amount_options) for _ in range(params.OBJECT_TYPE_NUM)]
         for goal_selecting_step in range(params.EPISODE_LEN):
             steps = 0

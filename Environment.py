@@ -53,28 +53,24 @@ class Environment:
         elif any(pre_located_objects_num):  # some objects are pre-located
             self.each_type_object_num = pre_located_objects_num
             self.object_locations = -1 * torch.ones(self.object_type_num, max(pre_located_objects_num), 2, dtype=torch.int32)
-            # self.each_type_object_num = [(~torch.eq(obj_type, -1)).sum() // 2 for obj_type in object_locations]
         else:
             self.each_type_object_num, self.object_locations = self.get_each_object_type_num_of_appearance()
 
         # pre-located objects
         for obj_type in range(self.object_type_num):
             for at_obj in range(pre_located_objects_num[obj_type]):
-                # if at_obj < len(pre_located_objects_location[obj_type]) and len(pre_located_objects_location[obj_type][at_obj]) > 0:
                 if not torch.eq(pre_located_objects_location[obj_type, at_obj], torch.tensor([-1, -1])).all():
                     # temp = self.object_locations.clone()
                     self.object_locations[obj_type, at_obj, :] = torch.as_tensor(
                         pre_located_objects_location[obj_type][at_obj])
                     sample = self.object_locations[obj_type, at_obj, :]
                     self.env_map[0, 1 + obj_type, sample[0], sample[1]] = 1
-                    # continue
         # New objects
         for obj_type in range(self.object_type_num):
             for at_obj in range(self.each_type_object_num[obj_type]):
                 if torch.eq(self.object_locations[obj_type, at_obj], torch.tensor([-1, -1])).all():  # not pre-assigned
                     do = 1
                     while do:
-                        # sample = np.array([np.random.randint(self.height), np.random.randint(self.width)])
                         hw_range = np.arange(self.height * self.width)
                         rand_num_in_range = random.choices(hw_range, weights=self.probability_map, k=1)[0]
                         sample = torch.tensor([rand_num_in_range // self.width, rand_num_in_range % self.width])
@@ -84,25 +80,6 @@ class Environment:
                             self.env_map[0, 1 + obj_type, sample[0], sample[1]] = 1
                             # self.probability_map[rand_num_in_range] *= .9
                             do = 0
-        # for obj_type in range(self.object_type_num):
-        #     for at_obj in range(self.each_type_object_num[obj_type]):
-        #         if at_obj < len(pre_located_objects_location[obj_type]) and len(pre_located_objects_location[obj_type][at_obj]) > 0:
-        #             self.object_locations[obj_type, at_obj, :] = torch.as_tensor(pre_located_objects_location[obj_type][at_obj])
-        #             sample = self.object_locations[obj_type, at_obj, :]
-        #             self.env_map[0, 1 + obj_type, sample[0], sample[1]] = 1
-        #             continue
-        #         do = 1
-        #         while do:
-        #             # sample = np.array([np.random.randint(self.height), np.random.randint(self.width)])
-        #             hw_range = np.arange(self.height * self.width)
-        #             rand_num_in_range = random.choices(hw_range, weights=self.probability_map, k=1)[0]
-        #             sample = torch.tensor([rand_num_in_range//self.width, rand_num_in_range%self.width])
-        #             if sum(self.env_map[0, 1:, sample[0], sample[1]]) == 0:  # This location is empty on every object layer
-        #                 self.object_locations[obj_type, at_obj, :] = sample
-        #                 self.env_map[0, 1+obj_type, sample[0], sample[1]] = 1
-        #                 # self.probability_map[rand_num_in_range] *= .9
-        #                 do = 0
-        # return object_locations
 
     def init_two_objects_far_from_each_other(self):
         r = random.random()
