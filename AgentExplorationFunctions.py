@@ -11,8 +11,9 @@ def agent_reached_goal(agent, environment, goal_index):
     return False
 
 
-def update_pre_located_objects(object_locations, agent_location, goal_reached, goal_type):
+def update_pre_located_objects(object_locations, agent_location, goal_reached):
     pre_located_objects = []
+
     if goal_reached:
         for obj_type in object_locations:
             temp = []
@@ -20,9 +21,10 @@ def update_pre_located_objects(object_locations, agent_location, goal_reached, g
                 if any(~torch.eq(loc, agent_location[0])):
                     temp.append(loc.tolist())
                 else:
-                    temp.append([])
+                    temp.append([-1, -1])
             pre_located_objects.append(temp)
-    return pre_located_objects
+    return torch.tensor(pre_located_objects)
+
 
 
 def get_controller_loss(controller_at_loss, device):

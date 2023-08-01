@@ -1,5 +1,7 @@
 import numpy as np
 from copy import deepcopy
+
+import torch
 from torch.utils.tensorboard import SummaryWriter
 from MetaControllerVisualizer import MetaControllerVisualizer
 from Visualizer import get_reward_plot, get_loss_plot
@@ -33,10 +35,10 @@ def training_meta_controller():
         episode_meta_controller_loss = 0
         all_actions = 0
         pre_located_objects_location = [[[]]] * params.OBJECT_TYPE_NUM
-        pre_located_objects_num = [] * params.OBJECT_TYPE_NUM
+        pre_located_objects_num = torch.zeros((params.OBJECT_TYPE_NUM, ), dtype=torch.int32)
         pre_located_agent = [[]]
         pre_assigned_needs = [[]]
-        object_amount_options = ['few', 'many']
+        object_amount_options = ['few', 'few'] #['few', 'many']
         episode_object_amount = [np.random.choice(object_amount_options) for _ in range(params.OBJECT_TYPE_NUM)]
         for goal_selecting_step in range(params.EPISODE_LEN):
             steps = 0
@@ -71,8 +73,7 @@ def training_meta_controller():
                                                     agent.need.clone())
                     pre_located_objects_location = update_pre_located_objects(environment.object_locations,
                                                                               agent.location,
-                                                                              goal_reached,
-                                                                              goal_type)
+                                                                              goal_reached)
                     pre_located_objects_num = environment.each_type_object_num
                     pre_located_agent = agent.location.tolist()
                     pre_assigned_needs = agent.need.tolist()
