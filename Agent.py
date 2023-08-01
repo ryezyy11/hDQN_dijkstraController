@@ -18,8 +18,6 @@ class Agent:
         self.prob_init_needs_equal = prob_init_needs_equal
         self.need = self.set_need(preassigned_needs)
         self.steps_done = 0
-        # self.episode_num = episode_num
-        # self.episode_len = episode_len
         self.EPS_START = 0.9
         self.EPS_END = 0.05
         self.lambda_need = 1  # How much the need increases after each action
@@ -69,19 +67,6 @@ class Agent:
     def get_location(self):
         return self.location
 
-    # def reset_location(self, environment):  # Resets the location to somewhere other than the current one
-    #     temp = (self.all_locations != self.location.squeeze())
-    #     temp = torch.logical_or(temp[:, 0], temp[:, 1])
-    #     for obj in range(environment.object_type_num):
-    #         object_nonoccupied = (
-    #                     self.all_locations != environment.object_locations[obj, :].squeeze())
-    #         object_nonoccupied = torch.logical_or(object_nonoccupied[:, 0], object_nonoccupied[:, 1])
-    #         temp = torch.logical_and(temp, object_nonoccupied)
-    #     available_locations = [self.all_locations[i, :] for i in range(len(temp)) if temp[i]]
-    #     new_location = random.choice(available_locations)
-    #     self.location = torch.from_numpy(np.array(new_location)).unsqueeze(0)
-    #     environment.update_agent_location_on_map(self)
-
     def take_action(self, environment, action_id):
         selected_action = environment.allactions[action_id].squeeze()  # to device
         self.location[0, :] += selected_action
@@ -94,11 +79,7 @@ class Agent:
         f, _ = environment.get_reward()
         self.update_need_after_reward(f)
         at_total_need = self.get_total_need()
-        # last_total_need = self.total_need
-        # rho = last_total_need - at_total_need - at_cost
-        # rho = (-1) * at_total_need - at_cost
         satisfaction = self.relu(last_total_need - at_total_need)
-        rho = (-1) * at_total_need - at_cost + satisfaction * self.lambda_satisfaction
-        # goal_reaching_reward = torch.sub(f, at_cost).squeeze()
+        rho = (-1) * at_total_need - at_cost + satisfaction # * self.lambda_satisfaction
         self.total_need = deepcopy(at_total_need)
         return rho.unsqueeze(0), satisfaction

@@ -52,7 +52,7 @@ class MetaController:
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
         self.BATCH_SIZE = batch_size
         self.GAMMA = gamma
-        self.batch_size_mul = 1
+        self.batch_size_mul = 3
         self.epsilon_list = []
         # self.selected_goal = np.ones((self.episode_num, 2)) * -1
 
